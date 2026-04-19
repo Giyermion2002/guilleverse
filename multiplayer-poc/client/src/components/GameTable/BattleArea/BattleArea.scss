@@ -14,6 +14,27 @@
     h2 {
       margin: 0;
     }
+
+    .btn-leave {
+      padding: 0.5rem 1.2rem;
+      font-size: 0.8rem;
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.5);
+      color: #ff4444;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+
+      &:hover {
+        background: rgba(255, 68, 68, 0.3);
+        box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+        transform: translateY(-2px);
+      }
+    }
   }
 
   .room-info {

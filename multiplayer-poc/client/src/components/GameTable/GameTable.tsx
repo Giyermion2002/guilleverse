@@ -24,6 +24,7 @@ interface GameTableProps {
   onStartGame: () => void;
   onPlayCard: (card: { type: string, value: string }) => void;
   onSendMessage: (text: string) => void;
+  onLeaveRoom: () => void;
 }
 
 /**
@@ -34,7 +35,7 @@ interface GameTableProps {
  * @returns {JSX.Element} El componente orquestador de la mesa de juego.
  */
 export const GameTable: React.FC<GameTableProps> = ({
-  roomCode, isHost, gameStarted, players, actions, messages, onStartGame, onPlayCard, onSendMessage
+  roomCode, isHost, gameStarted, players, actions, messages, onStartGame, onPlayCard, onSendMessage, onLeaveRoom
 }) => {
   const [lastAction, setLastAction] = useState<Action | null>(null);
 
@@ -62,6 +63,7 @@ export const GameTable: React.FC<GameTableProps> = ({
           lastAction={lastAction}
           onStartGame={onStartGame}
           onPlayCard={onPlayCard}
+          onLeaveRoom={onLeaveRoom}
         />
       </div>
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { playSFX } from '../../../utils/sfx';
+import { Modal } from '../../Common/Modal/Modal';
 import './BattleArea.scss';
 
 /**
@@ -22,6 +23,7 @@ interface BattleAreaProps {
   lastAction: Action | null;
   onStartGame: () => void;
   onPlayCard: (card: { type: string, value: string }) => void;
+  onLeaveRoom: () => void;
 }
 
 /**
@@ -32,8 +34,10 @@ interface BattleAreaProps {
  * @returns {JSX.Element} El componente del área de batalla.
  */
 export const BattleArea: React.FC<BattleAreaProps> = ({
-  roomCode, isHost, gameStarted, playerCount, lastAction, onStartGame, onPlayCard
+  roomCode, isHost, gameStarted, playerCount, lastAction, onStartGame, onPlayCard, onLeaveRoom
 }) => {
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+
   /**
    * Copia el código de la sala al portapapeles.
    */
@@ -42,10 +46,42 @@ export const BattleArea: React.FC<BattleAreaProps> = ({
     alert('Código copiado: ' + roomCode);
   };
 
+  /**
+   * Abre el modal de confirmación para salir.
+   */
+  const handleRequestLeave = () => {
+    playSFX('click');
+    setShowLeaveModal(true);
+  };
+
+  /**
+   * Confirma la salida y cierra el modal.
+   */
+  const handleConfirmLeave = () => {
+    setShowLeaveModal(false);
+    onLeaveRoom();
+  };
+
   return (
     <div className="glass glass-card battle-area-container">
+      {/* Modal de Confirmación */}
+      <Modal
+        isOpen={showLeaveModal}
+        title="¿Abandonar partida?"
+        message="¿Estás seguro de que quieres volver al Lobby? Se perderá tu progreso actual."
+        confirmText="SÍ, SALIR"
+        cancelText="CANCELAR"
+        onConfirm={handleConfirmLeave}
+        onClose={() => setShowLeaveModal(false)}
+      />
+
       <div className="table-header">
+        <button className="btn-leave" onClick={handleRequestLeave} title="Volver al Lobby">
+          <span>SALIR</span>
+        </button>
+        
         <h2>Mesa de Juego</h2>
+        
         <div className="glass room-info">
           <span>SALA: <strong className="code">{roomCode}</strong></span>
           <button onClick={copyCode}>Copiar</button>
@@ -89,7 +125,6 @@ export const BattleArea: React.FC<BattleAreaProps> = ({
         </div>
       </div>
 
-      {/* Mano del jugador (Botones de acción rápidos) */}
       <div className="player-hand">
         {['Espada', 'Copa', 'Oro', 'Basto'].map(type => (
           <button

@@ -134,6 +134,24 @@ function App() {
   };
 
   /**
+   * Abandona la sala actual y resetea todos los estados del juego para volver al Lobby.
+   */
+  const handleLeaveRoom = () => {
+    playSFX('click');
+    socket.emit('leave-room', roomCode);
+    
+    // Resetear estados locales
+    setJoined(false);
+    setRoomCode('');
+    setIsHost(false);
+    setGameStarted(false);
+    setPlayers([]);
+    setActions([]);
+    setMessages([]);
+    setErrorMessage(null);
+  };
+
+  /**
    * Envía un mensaje de chat a todos los jugadores de la sala.
    * @param {string} text - El contenido del mensaje.
    */
@@ -177,6 +195,7 @@ function App() {
           onStartGame={handleStartGame}
           onPlayCard={handlePlayCard} 
           onSendMessage={handleSendMessage}
+          onLeaveRoom={handleLeaveRoom}
         />
       )}
     </main>

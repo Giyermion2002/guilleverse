@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 
 const app = express();
@@ -48,6 +48,39 @@ const rooms: Map<string, Room> = new Map();
  * @returns {string} Código de sala generado.
  */
 const generateCode = () => Math.random().toString(36).substring(2, 6).toUpperCase();
+
+/**
+ * Gestiona la salida de un jugador de una sala específica.
+ * @param {Socket} socket - Socket del jugador.
+ * @param {string} code - Código de la sala.
+ */
+const handlePlayerLeave = (socket: Socket, code: string) => {
+  const room = rooms.get(code);
+  if (!room) return;
+
+  room.players.delete(socket.id);
+  socket.leave(code);
+
+  if (room.players.size === 0) {
+    rooms.delete(code);
+    console.log(`Sala ${code} eliminada por falta de jugadores`);
+  } else {
+    // Si el que se fue era el Host, elegir uno nuevo automáticamente
+    if (room.hostId === socket.id) {
+      const nextHost = room.players.keys().next().value;
+      if (nextHost) {
+        room.hostId = nextHost;
+        io.to(nextHost).emit('became-host');
+      }
+    }
+    
+    // Notificar lista actualizada tras la salida
+    io.to(code).emit('player-list', Array.from(room.players.values()).map(p => ({
+      ...p,
+      isHost: p.id === room.hostId
+    })));
+  }
+};
 
 /**
  * Manejador principal de conexiones de Socket.io.
@@ -135,6 +168,14 @@ io.on('connection', (socket) => {
   });
 
   /**
+   * Evento: Un jugador decide salir voluntariamente de la sala hacia el Lobby.
+   */
+  socket.on('leave-room', (code: string) => {
+    handlePlayerLeave(socket, code.toUpperCase());
+    console.log(`Usuario ${socket.id} salió voluntariamente de la sala ${code}`);
+  });
+
+  /**
    * Evento: Envío de un mensaje de chat.
    */
   socket.on('send-chat-message', ({ code, message }: { code: string, message: string }) => {
@@ -169,35 +210,11 @@ io.on('connection', (socket) => {
   });
 
   /**
-   * Evento: Gestión de la desconexión y limpieza de salas.
+   * Evento: Gestión de la desconexión total del socket y limpieza.
    */
   socket.on('disconnecting', () => {
     socket.rooms.forEach(code => {
-      const room = rooms.get(code);
-      if (room) {
-        room.players.delete(socket.id);
-        
-        // Si la sala se queda vacía, se elimina
-        if (room.players.size === 0) {
-          rooms.delete(code);
-          console.log(`Sala ${code} eliminada por falta de jugadores`);
-        } else {
-          // Si el que se fue era el Host, elegir uno nuevo automáticamente
-          if (room.hostId === socket.id) {
-            const nextHost = room.players.keys().next().value;
-            if (nextHost) {
-              room.hostId = nextHost;
-              io.to(nextHost).emit('became-host');
-            }
-          }
-          
-          // Notificar lista actualizada tras la salida
-          io.to(code).emit('player-list', Array.from(room.players.values()).map(p => ({
-            ...p,
-            isHost: p.id === room.hostId
-          })));
-        }
-      }
+      handlePlayerLeave(socket, code);
     });
   });
 });

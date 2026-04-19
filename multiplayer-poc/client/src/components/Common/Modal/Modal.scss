@@ -1,0 +1,83 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+
+  .modal-box {
+    width: 400px;
+    padding: 2rem;
+    border: 2px solid var(--primary-gold);
+    background: rgba(10, 26, 46, 0.95);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+    text-align: center;
+    border-radius: 1rem;
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-gold);
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    p {
+      margin: 1.5rem 0;
+      font-size: 1.1rem;
+      color: white;
+      opacity: 0.9;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+
+      button {
+        padding: 0.8rem 1.5rem;
+        min-width: 120px;
+      }
+
+      .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: white;
+        }
+      }
+
+      .btn-confirm {
+        background: rgba(255, 68, 68, 0.1);
+        border: 1px solid #ff4444;
+        color: #ff4444;
+
+        &:hover {
+          background: rgba(255, 68, 68, 0.2);
+          box-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
