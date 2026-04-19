@@ -1,4 +1,3 @@
-/* Resetting App.css as index.css handles the main design */
 .table-center {
   background: radial-gradient(circle at center, rgba(100, 108, 255, 0.1) 0%, transparent 70%);
   border-radius: 50%;
@@ -6,9 +5,4 @@
 
 .action-popup {
   box-shadow: 0 0 40px rgba(100, 108, 255, 0.2);
-}
-
-.lobby-container {
-  max-width: 600px;
-  margin: 0 auto;
 }

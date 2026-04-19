@@ -1,0 +1,110 @@
+.lobby-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  overflow: hidden;
+  position: relative;
+
+  h1 {
+    margin-bottom: 0.5rem;
+    
+    p {
+      color: var(--magic-cyan);
+      font-size: 1.5rem;
+      margin-top: -0.5rem;
+    }
+  }
+
+  .banner-img {
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid var(--primary-gold);
+    max-height: 250px;
+    object-fit: cover;
+  }
+
+  .initial-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .btn-back {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--primary-gold) !important;
+    opacity: 0.6;
+    cursor: pointer;
+    font-family: serif;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    padding: 0 !important;
+
+    &:hover {
+      opacity: 1;
+      transform: translateX(-5px);
+      color: var(--magic-cyan) !important;
+    }
+  }
+
+  .error-box {
+    background: rgba(255, 68, 68, 0.15);
+    color: #ff4444;
+    padding: 0.8rem;
+    borderRadius: 0.5rem;
+    fontSize: 0.85rem;
+    border: 1px solid #ff4444;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .lobby-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .avatar-section {
+    text-align: left;
+
+    .section-label {
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .avatar-item {
+      cursor: pointer;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      transition: all 0.2s;
+      border: 3px solid transparent;
+
+      &.selected {
+        border-color: var(--magic-cyan);
+        box-shadow: 0 0 15px var(--magic-cyan);
+      }
+
+      img {
+        width: 100%;
+        display: block;
+      }
+    }
+  }
+}

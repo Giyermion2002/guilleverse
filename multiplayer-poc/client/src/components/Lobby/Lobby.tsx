@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
-import { playSFX } from '../utils/sfx';
+import { playSFX } from '../../utils/sfx';
+import './Lobby.scss';
 
+/**
+ * Interfaz que define las propiedades del componente Lobby.
+ */
 interface LobbyProps {
+  /** Función que se ejecuta al crear una nueva partida. */
   onCreate: (name: string, avatar: string) => void;
+  /** Función que se ejecuta al intentar unirse a una partida existente. */
   onJoin: (code: string, name: string, avatar: string) => void;
+  /** Estado de carga que indica si hay una petición de red en curso. */
   isLoading?: boolean;
+  /** Mensaje de error para mostrar en la interfaz si la conexión falla. */
   error?: string | null;
 }
 
+/**
+ * Componente Lobby: Gestiona el registro de jugadores, la selección de avatares 
+ * y la creación/unión a salas de juego.
+ * 
+ * @param {LobbyProps} props - Propiedades del componente.
+ * @returns {JSX.Element} El componente de la interfaz de usuario del lobby.
+ */
 export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error }) => {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -19,6 +34,10 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
     'mono.png', 'selidios.png', 'sergigi.png', 'velas.png'
   ];
 
+  /**
+   * Maneja el envío del formulario de creación de sala.
+   * @param {React.FormEvent} e - Evento del formulario.
+   */
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
@@ -26,6 +45,10 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
     }
   };
 
+  /**
+   * Maneja el envío del formulario para unirse a una sala.
+   * @param {React.FormEvent} e - Evento del formulario.
+   */
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanCode = code.trim().toUpperCase();
@@ -34,20 +57,21 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
     }
   };
 
+  // Vista inicial con opciones de Crear o Unirse
   if (mode === 'initial') {
     return (
       <div className="glass glass-card lobby-container">
         <img
           src="/portada.png"
           alt="Guilleverse"
-          style={{ width: '100%', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '2px solid var(--primary-gold)' }}
+          className="banner-img"
         />
         <h1>
           Guilleverse
-          <p style={{ color: 'var(--magic-cyan)', fontSize: '1.5rem', marginTop: '-0.5rem' }}>Web Edition</p>
+          <p>Web Edition</p>
         </h1>
         <p style={{ marginBottom: '2rem', opacity: 0.7 }}>Elige cómo quieres empezar</p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <div className="initial-actions">
           <button onClick={() => setMode('create')}>Crear Partida</button>
           <button onClick={() => setMode('join')} className="secondary">Unirse por Código</button>
         </div>
@@ -55,35 +79,28 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
     );
   }
 
+  // Vista de formulario (Crear o Unirse)
   return (
-    <div className="glass glass-card lobby-container" style={{ position: 'relative' }}>
+    <div className="glass glass-card lobby-container">
       <button
         onClick={() => {
           playSFX('click');
           setMode('initial');
         }}
         className="btn-back"
-        style={{ position: 'absolute', top: '1.5rem', left: '1.5rem' }}
       >
         ← Volver
       </button>
+      
       <h1>{mode === 'create' ? 'Crear Partida' : 'Unirse a Partida'}</h1>
       
       {error && (
-        <div style={{ 
-          background: 'rgba(255, 68, 68, 0.15)', 
-          color: '#ff4444', 
-          padding: '0.8rem', 
-          borderRadius: '0.5rem', 
-          fontSize: '0.85rem',
-          border: '1px solid #ff4444',
-          marginBottom: '1rem'
-        }}>
+        <div className="error-box">
           ⚠️ {error}
         </div>
       )}
 
-      <form onSubmit={mode === 'create' ? handleCreate : handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <form onSubmit={mode === 'create' ? handleCreate : handleJoin} className="lobby-form">
         <input
           type="text"
           placeholder="Tu apodo..."
@@ -93,16 +110,9 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
           required
         />
 
-        <div className="avatar-selector">
-          <p style={{ fontSize: '0.9rem', marginBottom: '0.8rem', opacity: 0.8 }}>Selecciona tu personaje:</p>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
-            gap: '0.8rem',
-            background: 'rgba(0,0,0,0.2)',
-            padding: '1rem',
-            borderRadius: '0.5rem'
-          }}>
+        <div className="avatar-section">
+          <p className="section-label">Selecciona tu personaje:</p>
+          <div className="avatar-grid">
             {avatars.map(av => (
               <div 
                 key={av}
@@ -110,16 +120,9 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
                   playSFX('click');
                   setSelectedAvatar(av);
                 }}
-                style={{
-                  cursor: 'pointer',
-                  borderRadius: '0.5rem',
-                  overflow: 'hidden',
-                  border: `3px solid ${selectedAvatar === av ? 'var(--magic-cyan)' : 'transparent'}`,
-                  transition: 'all 0.2s',
-                  boxShadow: selectedAvatar === av ? '0 0 15px var(--magic-cyan)' : 'none'
-                }}
+                className={`avatar-item ${selectedAvatar === av ? 'selected' : ''}`}
               >
-                <img src={`/avatars/${av}`} alt={av} style={{ width: '100%', display: 'block' }} />
+                <img src={`/avatars/${av}`} alt={av} />
               </div>
             ))}
           </div>
