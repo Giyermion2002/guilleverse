@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { playSFX } from '../../utils/sfx';
 import { Lobby } from '../Lobby/Lobby';
 import { GameTable } from '../GameTable/GameTable';
+import { AudioControl } from '../AudioControl/AudioControl';
 import './App.scss';
 
 // Inicialización del socket fuera del componente para evitar reconexiones múltiples en cada render
@@ -157,6 +158,7 @@ function App() {
 
   return (
     <main>
+      <AudioControl />
       {!joined ? (
         <Lobby 
           onCreate={handleCreate} 

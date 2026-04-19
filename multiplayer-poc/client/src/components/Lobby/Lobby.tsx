@@ -70,7 +70,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
           Guilleverse
           <p>Web Edition</p>
         </h1>
-        <p style={{ marginBottom: '2rem', opacity: 0.7 }}>Elige cómo quieres empezar</p>
+        <p className="lobby-subtitle">Elige cómo quieres empezar</p>
         <div className="initial-actions">
           <button onClick={() => setMode('create')}>Crear Partida</button>
           <button onClick={() => setMode('join')} className="secondary">Unirse por Código</button>
@@ -139,7 +139,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onCreate, onJoin, isLoading, error
           />
         )}
 
-        <button type="submit" style={{ width: '100%' }} disabled={isLoading}>
+        <button type="submit" className="btn-submit" disabled={isLoading}>
           {isLoading ? (
             <span>Conectando...</span>
           ) : (

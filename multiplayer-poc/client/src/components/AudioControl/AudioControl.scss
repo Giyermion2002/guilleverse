@@ -1,0 +1,43 @@
+.audio-control-wrapper {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  pointer-events: none;
+
+  .audio-btn {
+    pointer-events: auto;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--primary-gold);
+    color: var(--primary-gold);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      color: var(--magic-cyan);
+      border-color: var(--magic-cyan);
+    }
+
+    &.muted {
+      opacity: 0.6;
+      border-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      box-shadow: none;
+    }
+  }
+}

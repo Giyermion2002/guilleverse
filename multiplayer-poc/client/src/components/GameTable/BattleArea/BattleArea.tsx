@@ -91,31 +91,18 @@ export const BattleArea: React.FC<BattleAreaProps> = ({
 
       {/* Mano del jugador (Botones de acción rápidos) */}
       <div className="player-hand">
-        {['Espada', 'Copa', 'Oro', 'Basto'].map(type => {
-          const colors: Record<string, string> = {
-            'Espada': '#00fbff',
-            'Copa': '#ff00cc',
-            'Oro': '#ffd700',
-            'Basto': '#4caf50'
-          };
-          return (
-            <button
-              key={type}
-              className="glass-card card-btn"
-              style={{
-                borderColor: colors[type],
-                color: colors[type],
-                boxShadow: `0 6px 0 ${colors[type]}44`
-              }}
-              onClick={() => {
-                playSFX('click');
-                onPlayCard({ type, value: 'As' });
-              }}
-            >
-              {type}
-            </button>
-          );
-        })}
+        {['Espada', 'Copa', 'Oro', 'Basto'].map(type => (
+          <button
+            key={type}
+            className={`glass-card card-btn card-${type.toLowerCase()}`}
+            onClick={() => {
+              playSFX('click');
+              onPlayCard({ type, value: 'As' });
+            }}
+          >
+            {type}
+          </button>
+        ))}
       </div>
     </div>
   );

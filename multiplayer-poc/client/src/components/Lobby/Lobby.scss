@@ -6,7 +6,7 @@
 
   h1 {
     margin-bottom: 0.5rem;
-    
+
     p {
       color: var(--magic-cyan);
       font-size: 1.5rem;
@@ -21,6 +21,12 @@
     border: 2px solid var(--primary-gold);
     max-height: 250px;
     object-fit: cover;
+  }
+
+  .lobby-subtitle {
+    margin-bottom: 2rem;
+    opacity: 0.7;
+    font-size: 0.9rem;
   }
 
   .initial-actions {
@@ -104,6 +110,11 @@
       img {
         width: 100%;
         display: block;
+      }
+
+      button[type="submit"].btn-submit {
+        width: 100%;
+        margin-top: 1rem;
       }
     }
   }
