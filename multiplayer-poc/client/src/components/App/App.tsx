@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { playSFX } from '../../utils/sfx';
 import { Lobby } from '../Lobby/Lobby';
+import { LobbyRoom } from '../Lobby/LobbyRoom/LobbyRoom';
 import { GameTable } from '../GameTable/GameTable';
 import { AudioControl } from '../AudioControl/AudioControl';
 import './App.scss';
@@ -177,23 +178,38 @@ function App() {
   return (
     <main>
       <AudioControl />
-      {!joined ? (
-        <Lobby 
-          onCreate={handleCreate} 
-          onJoin={handleJoin} 
-          isLoading={isConnecting} 
+      {/* Estado 1: No conectado → pantalla de entrada al Lobby */}
+      {!joined && (
+        <Lobby
+          onCreate={handleCreate}
+          onJoin={handleJoin}
+          isLoading={isConnecting}
           error={errorMessage}
         />
-      ) : (
-        <GameTable 
+      )}
+
+      {/* Estado 2: Conectado pero la partida no ha empezado → sala de espera */}
+      {joined && !gameStarted && (
+        <LobbyRoom
+          roomCode={roomCode}
+          isHost={isHost}
+          players={players}
+          onStartGame={handleStartGame}
+          onLeaveRoom={handleLeaveRoom}
+        />
+      )}
+
+      {/* Estado 3: Partida en curso → mesa de juego completa */}
+      {joined && gameStarted && (
+        <GameTable
           roomCode={roomCode}
           isHost={isHost}
           gameStarted={gameStarted}
-          players={players} 
-          actions={actions} 
+          players={players}
+          actions={actions}
           messages={messages}
           onStartGame={handleStartGame}
-          onPlayCard={handlePlayCard} 
+          onPlayCard={handlePlayCard}
           onSendMessage={handleSendMessage}
           onLeaveRoom={handleLeaveRoom}
         />

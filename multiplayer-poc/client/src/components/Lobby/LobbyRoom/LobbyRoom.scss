@@ -1,0 +1,319 @@
+// Animación de entrada para cada ítem de jugador
+@keyframes playerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Animación de parpadeo para los slots vacíos pendientes
+@keyframes pulse-slot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+// Animación de los puntos suspensivos "esperando"
+@keyframes waiting-dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+// Efecto de brillo animado en la barra de quórum al alcanzar el mínimo
+@keyframes bar-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--primary-gold); }
+  50%       { box-shadow: 0 0 20px var(--primary-gold), 0 0 40px var(--magic-cyan); }
+}
+
+.lobby-room {
+  max-width: 520px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  padding: 2rem;
+
+  // ── Cabecera ──────────────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+  }
+
+  &__title {
+    flex: 1;
+    text-align: center;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  &__btn-leave {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--primary-gold) !important;
+    opacity: 0.6;
+    cursor: pointer;
+    font-family: serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    padding: 0 !important;
+    transition: all 0.3s;
+    white-space: nowrap;
+
+    &:hover {
+      opacity: 1;
+      transform: translateX(-5px);
+      color: var(--magic-cyan) !important;
+    }
+  }
+
+  // ── Bloque del código de sala ─────────────────────────────────────────────
+  &__code-block {
+    text-align: center;
+  }
+
+  &__code-label {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+  }
+
+  &__code-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 2px solid var(--primary-gold);
+    border-radius: 0.75rem;
+    padding: 0.6rem 1.4rem;
+  }
+
+  &__code-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    font-family: serif;
+    letter-spacing: 0.5rem;
+    color: var(--primary-gold);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+
+  &__btn-copy {
+    background: rgba(255, 215, 0, 0.12) !important;
+    border: 1px solid var(--primary-gold) !important;
+    color: var(--primary-gold) !important;
+    border-radius: 0.4rem !important;
+    font-size: 0.78rem !important;
+    padding: 0.3rem 0.7rem !important;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(255, 215, 0, 0.25) !important;
+    }
+
+    &.copied {
+      border-color: var(--magic-cyan) !important;
+      color: var(--magic-cyan) !important;
+      background: rgba(0, 255, 255, 0.1) !important;
+    }
+  }
+
+  // ── Indicador de quórum (GAP 3) ──────────────────────────────────────────
+  &__quorum {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__quorum-label {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    text-align: center;
+  }
+
+  &__quorum-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--magic-cyan);
+    transition: color 0.4s;
+
+    &.reached {
+      color: var(--primary-gold);
+    }
+  }
+
+  &__quorum-bar-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  &__quorum-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--magic-cyan), #0ff6);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &.reached {
+      background: linear-gradient(90deg, var(--primary-gold), #ffd70099);
+      animation: bar-glow 1.5s ease-in-out infinite;
+    }
+  }
+
+  // ── Lista de jugadores ────────────────────────────────────────────────────
+  &__players-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    margin-bottom: 0.8rem;
+  }
+
+  &__players-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  &__player-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    animation: playerEnter 0.35s ease-out both;
+
+    &.empty {
+      opacity: 0.35;
+      border-style: dashed;
+      animation: pulse-slot 2s ease-in-out infinite;
+    }
+  }
+
+  &__player-avatar-wrapper {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  &__player-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  &__empty-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  &__host-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  &__player-name {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  &__host-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary-gold);
+    background: rgba(255, 215, 0, 0.12);
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 0.3rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  // ── Footer de acción ──────────────────────────────────────────────────────
+  &__footer {
+    text-align: center;
+  }
+
+  &__btn-start {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-family: serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+
+    &.active {
+      background: linear-gradient(135deg, var(--primary-gold), #e6a800);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.45);
+
+      &:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.7);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    &.disabled {
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: not-allowed;
+    }
+  }
+
+  &__waiting-msg {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+
+  &__waiting-dots::after {
+    content: '';
+    animation: waiting-dots 1.5s steps(4, end) infinite;
+  }
+}
