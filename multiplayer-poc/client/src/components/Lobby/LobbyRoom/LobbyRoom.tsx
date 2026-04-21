@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { playSFX } from '../../../utils/sfx';
+import { Button } from '../../Common/Button/Button';
 import './LobbyRoom.scss';
 
 /**
@@ -83,15 +84,15 @@ export const LobbyRoom: React.FC<LobbyRoomProps> = ({
     <div className="lobby-room glass glass-card">
       {/* Cabecera con botón de salida */}
       <div className="lobby-room__header">
-        <button
-          className="lobby-room__btn-leave"
+        <Button
+          variant="ghost"
           onClick={() => {
             playSFX('click');
             onLeaveRoom();
           }}
         >
           ← Salir
-        </button>
+        </Button>
         <h1 className="lobby-room__title">Sala de Espera</h1>
       </div>
 
@@ -100,13 +101,14 @@ export const LobbyRoom: React.FC<LobbyRoomProps> = ({
         <p className="lobby-room__code-label">Comparte este código:</p>
         <div className="lobby-room__code-display">
           <span className="lobby-room__code-value">{roomCode}</span>
-          <button
-            className={`lobby-room__btn-copy ${copied ? 'copied' : ''}`}
+          <Button
+            variant="secondary"
+            className={`lobby-room__btn-copy${copied ? ' copied' : ''}`}
             onClick={handleCopyCode}
             title="Copiar código"
           >
             {copied ? '✓ Copiado' : '⧉ Copiar'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -169,13 +171,13 @@ export const LobbyRoom: React.FC<LobbyRoomProps> = ({
       {/* Área de acción inferior: diferente para Host y Jugador */}
       <div className="lobby-room__footer">
         {isHost ? (
-          <button
-            className={`lobby-room__btn-start ${quorumReached ? 'active' : 'disabled'}`}
+          <Button
+            className={`lobby-room__btn-start${quorumReached ? ' active' : ' disabled'}`}
             onClick={handleStartGame}
             disabled={!quorumReached}
           >
             {quorumReached ? '⚡ EMPEZAR PARTIDA' : `Faltan ${QUORUM_MIN - players.length} jugador(es)`}
-          </button>
+          </Button>
         ) : (
           <p className="lobby-room__waiting-msg">
             Esperando que el Host inicie la partida...

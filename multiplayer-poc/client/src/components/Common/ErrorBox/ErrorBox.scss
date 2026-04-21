@@ -1,0 +1,13 @@
+// ErrorBox.scss
+// Bloque de error estilizado. Extraído de .error-box en Lobby.scss.
+
+.error-box {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #ff4444;
+  margin-bottom: 1rem;
+  text-align: left;
+}

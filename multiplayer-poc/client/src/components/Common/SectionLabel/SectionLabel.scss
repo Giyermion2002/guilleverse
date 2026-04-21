@@ -1,0 +1,14 @@
+// SectionLabel.scss
+// Etiqueta pequeña para encabezar secciones de formulario.
+// Extraído de .section-label en Lobby.scss.
+
+.section-label {
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+  opacity: 0.8;
+  font-family: serif;
+
+  &--left   { text-align: left; }
+  &--center { text-align: center; }
+  &--right  { text-align: right; }
+}

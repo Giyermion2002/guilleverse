@@ -1,0 +1,8 @@
+// TextInput.scss
+// Los estilos base del input (fondo oscuro, borde dorado, focus glow)
+// vienen de index.css. Este archivo añade el width 100% necesario dentro de formularios.
+
+.text-input {
+  width: 100%;
+  box-sizing: border-box;
+}

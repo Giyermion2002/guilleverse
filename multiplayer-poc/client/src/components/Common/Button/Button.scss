@@ -1,0 +1,26 @@
+// Button.scss
+// Los estilos base (dorado, cyan) vienen de index.css (reglas globales `button` y `button.secondary`).
+// Este archivo solo añade overrides que NO están cubiertos por los globales.
+
+// Variante ghost (← Volver / ← Salir) — los estilos en index.css ya definen .btn-back,
+// pero dentro del lobby-container se sobreescriben con position:absolute.
+// Este bloque aplica cuando se usa fuera de ese scope.
+.btn-back {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--primary-gold) !important;
+  opacity: 0.6;
+  cursor: pointer;
+  font-family: serif;
+  font-size: 1.2rem;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  padding: 0 !important;
+
+  &:hover {
+    opacity: 1;
+    transform: translateX(-5px);
+    color: var(--magic-cyan) !important;
+  }
+}
