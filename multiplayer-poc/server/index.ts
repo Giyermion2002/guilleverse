@@ -73,7 +73,7 @@ const handlePlayerLeave = (socket: Socket, code: string) => {
         io.to(nextHost).emit('became-host');
       }
     }
-    
+
     // Notificar lista actualizada tras la salida
     io.to(code).emit('player-list', Array.from(room.players.values()).map(p => ({
       ...p,
@@ -104,17 +104,17 @@ io.on('connection', (socket) => {
 
     rooms.set(code, room);
     socket.join(code);
-    
+
     // Notificar al creador que la sala está lista
     socket.emit('joined-room', { code, isHost: true });
-    
+
     // Emitir lista inicial de jugadores
     const playerList = Array.from(room.players.values()).map(p => ({
       ...p,
       isHost: p.id === room.hostId
     }));
     io.to(code).emit('player-list', playerList);
-    
+
     console.log(`Sala creada: ${code} por ${name} (Avatar: ${avatar})`);
   });
 
@@ -123,9 +123,18 @@ io.on('connection', (socket) => {
    */
   socket.on('join-room', ({ code, name, avatar }: { code: string, name: string, avatar: string }) => {
     const room = rooms.get(code.toUpperCase());
-    
+
     if (!room) {
       socket.emit('error', 'La sala no existe');
+      return;
+    }
+
+    // Validar que el nombre no esté ya en uso en esta sala
+    const nameTaken = Array.from(room.players.values()).some(
+      p => p.name.toLowerCase() === name.trim().toLowerCase()
+    );
+    if (nameTaken) {
+      socket.emit('error', `El nombre "${name}" ya está en uso en esta sala`);
       return;
     }
 
@@ -134,14 +143,14 @@ io.on('connection', (socket) => {
     socket.join(code.toUpperCase());
 
     socket.emit('joined-room', { code: room.code, isHost: false });
-    
+
     // Actualizar lista de jugadores para todos en la sala
     const playerList = Array.from(room.players.values()).map(p => ({
       ...p,
       isHost: p.id === room.hostId
     }));
     io.to(room.code).emit('player-list', playerList);
-    
+
     // Sincronizar estado si la partida ya empezó
     if (room.gameStarted) {
       socket.emit('game-started');
@@ -181,7 +190,7 @@ io.on('connection', (socket) => {
   socket.on('send-chat-message', ({ code, message }: { code: string, message: string }) => {
     const room = rooms.get(code.toUpperCase());
     const player = room?.players.get(socket.id);
-    
+
     if (room && player) {
       io.to(room.code).emit('chat-message', {
         id: Math.random().toString(36).substr(2, 9),
@@ -199,7 +208,7 @@ io.on('connection', (socket) => {
   socket.on('play-card', ({ code, card }: { code: string, card: { type: string, value: string } }) => {
     const room = rooms.get(code.toUpperCase());
     const player = room?.players.get(socket.id);
-    
+
     if (player && room) {
       io.to(room.code).emit('new-action', {
         playerName: player.name,

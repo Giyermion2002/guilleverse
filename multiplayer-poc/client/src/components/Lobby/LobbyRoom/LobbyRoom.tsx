@@ -142,7 +142,12 @@ export const LobbyRoom: React.FC<LobbyRoomProps> = ({
                   <span className="lobby-room__host-badge" title="Anfitrión">👑</span>
                 )}
               </div>
-              <span className="lobby-room__player-name">{player.name}</span>
+              <span className="lobby-room__player-name">
+                {player.name}
+                <span className="lobby-room__player-character">
+                  ({player.avatar.replace('.png', '')})
+                </span>
+              </span>
               {player.isHost && (
                 <span className="lobby-room__host-label">Host</span>
               )}

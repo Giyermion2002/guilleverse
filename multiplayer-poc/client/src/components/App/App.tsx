@@ -140,7 +140,7 @@ function App() {
   const handleLeaveRoom = () => {
     playSFX('click');
     socket.emit('leave-room', roomCode);
-    
+
     // Resetear estados locales
     setJoined(false);
     setRoomCode('');
