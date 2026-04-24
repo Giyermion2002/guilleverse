@@ -27,6 +27,13 @@ interface Player {
 }
 
 /**
+ * Colores de minijuego disponibles en el Guilleverse.
+ */
+const GAME_COLORS = ['amarillo', 'rojo', 'verde', 'azul'] as const;
+/** Tipo de color de minijuego. */
+type GameColor = typeof GAME_COLORS[number];
+
+/**
  * Representa una sala de juego.
  */
 interface Room {
@@ -38,6 +45,13 @@ interface Room {
   players: Map<string, Player>;
   /** Estado de la partida (si ha comenzado o sigue en lobby). */
   gameStarted: boolean;
+  /** Color de minijuego elegido al iniciar la partida. */
+  gameColor?: GameColor;
+  /**
+   * Rastrea jugadores que han salido recientemente, indexados por avatar.
+   * Permite detectar reconexiones (misma persona, posible cambio de nombre).
+   */
+  departedPlayers: Map<string, { name: string; avatar: string }>;
 }
 
 /** Almacenamiento volátil de salas activas. */
@@ -50,13 +64,30 @@ const rooms: Map<string, Room> = new Map();
 const generateCode = () => Math.random().toString(36).substring(2, 6).toUpperCase();
 
 /**
+ * Genera un mensaje de sistema con los campos estándar de chat-message.
+ * @param {string} text - Texto del mensaje.
+ * @returns Objeto listo para emitir como 'chat-message'.
+ */
+const makeSystemMessage = (text: string) => ({
+  id: Math.random().toString(36).substr(2, 9),
+  sender: '__system__',
+  avatar: '',
+  text,
+  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  isSystem: true,
+});
+
+/**
  * Gestiona la salida de un jugador de una sala específica.
+ * Guarda los datos del jugador en `departedPlayers` para detectar reconexiones futuras.
  * @param {Socket} socket - Socket del jugador.
  * @param {string} code - Código de la sala.
  */
 const handlePlayerLeave = (socket: Socket, code: string) => {
   const room = rooms.get(code);
   if (!room) return;
+
+  const departingPlayer = room.players.get(socket.id);
 
   room.players.delete(socket.id);
   socket.leave(code);
@@ -79,6 +110,17 @@ const handlePlayerLeave = (socket: Socket, code: string) => {
       ...p,
       isHost: p.id === room.hostId
     })));
+
+    // Registrar jugador como salido y emitir mensaje de sistema
+    if (departingPlayer) {
+      room.departedPlayers.set(departingPlayer.avatar, {
+        name: departingPlayer.name,
+        avatar: departingPlayer.avatar,
+      });
+      io.to(code).emit('chat-message', makeSystemMessage(
+        `${departingPlayer.name} ha abandonado la partida`
+      ));
+    }
   }
 };
 
@@ -99,7 +141,8 @@ io.on('connection', (socket) => {
       code,
       hostId: socket.id,
       players: new Map([[socket.id, { id: socket.id, name, avatar }]]),
-      gameStarted: false
+      gameStarted: false,
+      departedPlayers: new Map(),
     };
 
     rooms.set(code, room);
@@ -151,10 +194,24 @@ io.on('connection', (socket) => {
     }));
     io.to(room.code).emit('player-list', playerList);
 
-    // Sincronizar estado si la partida ya empezó
+    // Sincronizar estado si la partida ya empezó — isNew: false para saltar la ruleta
     if (room.gameStarted) {
-      socket.emit('game-started');
+      socket.emit('game-started', { color: room.gameColor, isNew: false });
     }
+
+    // Emitir mensaje de sistema: unión o reconexion
+    const departed = room.departedPlayers.get(avatar);
+    let systemText: string;
+    if (departed) {
+      // Mismo avatar → reconexión
+      room.departedPlayers.delete(avatar);
+      systemText = departed.name === name
+        ? `${name} se ha reconectado a la partida`
+        : `${name} se ha reconectado a la partida (antes: ${departed.name})`;
+    } else {
+      systemText = `${name} se ha unido a la partida`;
+    }
+    io.to(room.code).emit('chat-message', makeSystemMessage(systemText));
 
     console.log(`${name} se unió a la sala: ${room.code} (Avatar: ${avatar})`);
   });
@@ -170,9 +227,13 @@ io.on('connection', (socket) => {
         socket.emit('error', 'Necesitas al menos 3 jugadores para empezar');
         return;
       }
+      // Elegir color de minijuego aleatoriamente
+      const color: GameColor = GAME_COLORS[Math.floor(Math.random() * GAME_COLORS.length)];
       room.gameStarted = true;
-      io.to(room.code).emit('game-started');
-      console.log(`Partida iniciada en la sala: ${room.code}`);
+      room.gameColor   = color;
+      // isNew: true — todos los clientes en sala verán la ruleta
+      io.to(room.code).emit('game-started', { color, isNew: true });
+      console.log(`Partida iniciada en la sala: ${room.code} — Modo: ${color}`);
     }
   });
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlayerList } from './PlayerList/PlayerList';
 import { BattleArea } from './BattleArea/BattleArea';
 import { ChatBox } from './ChatBox/ChatBox';
+import { type GameColor } from '../ColorRoulette/ColorRoulette';
 import './GameTable.scss';
 
 /** 
@@ -18,6 +19,8 @@ interface GameTableProps {
   roomCode: string;
   isHost: boolean;
   gameStarted: boolean;
+  /** Color de minijuego activo, determinado por la ruleta al inicio de la partida. */
+  gameColor: GameColor | null;
   players: Player[];
   actions: Action[];
   messages: ChatMessage[];
@@ -35,7 +38,7 @@ interface GameTableProps {
  * @returns {JSX.Element} El componente orquestador de la mesa de juego.
  */
 export const GameTable: React.FC<GameTableProps> = ({
-  roomCode, isHost, gameStarted, players, actions, messages, onStartGame, onPlayCard, onSendMessage, onLeaveRoom
+  roomCode, isHost, gameStarted, gameColor, players, actions, messages, onStartGame, onPlayCard, onSendMessage, onLeaveRoom
 }) => {
   const [lastAction, setLastAction] = useState<Action | null>(null);
 
@@ -59,6 +62,7 @@ export const GameTable: React.FC<GameTableProps> = ({
           roomCode={roomCode}
           isHost={isHost}
           gameStarted={gameStarted}
+          gameColor={gameColor}
           playerCount={players.length}
           lastAction={lastAction}
           onStartGame={onStartGame}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { playSFX } from '../../../utils/sfx';
 import { Modal } from '../../Common/Modal/Modal';
+import { type GameColor } from '../../ColorRoulette/ColorRoulette';
 import './BattleArea.scss';
 
 /**
@@ -19,6 +20,8 @@ interface BattleAreaProps {
   roomCode: string;
   isHost: boolean;
   gameStarted: boolean;
+  /** Color de minijuego activo (elegido por la ruleta). */
+  gameColor: GameColor | null;
   playerCount: number;
   lastAction: Action | null;
   onStartGame: () => void;
@@ -33,8 +36,16 @@ interface BattleAreaProps {
  * @param {BattleAreaProps} props - Propiedades del componente.
  * @returns {JSX.Element} El componente del área de batalla.
  */
+/** Metadatos visuales de cada color de minijuego. */
+const MODE_META: Record<GameColor, { label: string; emoji: string; cssColor: string }> = {
+  amarillo: { label: 'EXPRESIÓN',   emoji: '📢', cssColor: '#ffd700' },
+  rojo:     { label: 'DUELO',       emoji: '⚔️', cssColor: '#ff3333' },
+  verde:    { label: 'VOTACIÓN',    emoji: '🗳️', cssColor: '#22cc44' },
+  azul:     { label: 'ADIVINANZA', emoji: '🔮', cssColor: '#3399ff' },
+};
+
 export const BattleArea: React.FC<BattleAreaProps> = ({
-  roomCode, isHost, gameStarted, playerCount, lastAction, onStartGame, onPlayCard, onLeaveRoom
+  roomCode, isHost, gameStarted, gameColor, playerCount, lastAction, onStartGame, onPlayCard, onLeaveRoom
 }) => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
 
@@ -105,12 +116,23 @@ export const BattleArea: React.FC<BattleAreaProps> = ({
           </div>
         )}
 
-        {/* Estado de la partida */}
-        {gameStarted && (
-          <div className="game-status">
-            <span className="status-badge">PARTIDA EN CURSO</span>
-          </div>
-        )}
+        {/* Badge de modo activo */}
+        {gameStarted && gameColor && (() => {
+          const meta = MODE_META[gameColor];
+          return (
+            <div
+              className="game-mode-badge"
+              style={{
+                borderColor: meta.cssColor,
+                color: meta.cssColor,
+                boxShadow: `0 0 12px ${meta.cssColor}60`,
+              }}
+            >
+              <span className="game-mode-badge__emoji">{meta.emoji}</span>
+              <span className="game-mode-badge__label">{meta.label}</span>
+            </div>
+          );
+        })()}
 
         {/* Área de acciones central */}
         <div className="table-center">

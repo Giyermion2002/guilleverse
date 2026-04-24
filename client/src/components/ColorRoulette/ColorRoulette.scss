@@ -1,0 +1,393 @@
+// ColorRoulette.scss
+// Estilos del overlay y la animación de ruleta de colores del Guilleverse.
+
+// ── Keyframes ─────────────────────────────────────────────────────────────────
+
+// Entrada del overlay
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// Salida del overlay
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+// Entrada del modal desde abajo
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// Pulso del glow ring al revelar
+@keyframes glowPulse {
+  from { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+  to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.05); }
+}
+
+// Aparición del nombre del modo
+@keyframes modeReveal {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); letter-spacing: 0.3em; }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   letter-spacing: 0.12em; }
+}
+
+// Pulso permanente del hub central durante el giro
+@keyframes hubPulse {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to   { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+// Partículas de luz en el borde de la rueda
+@keyframes rimLight {
+  0%   { box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.0); }
+  50%  { box-shadow: 0 0 20px 4px rgba(255, 255, 255, 0.6); }
+  100% { box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.0); }
+}
+
+// ── Overlay ───────────────────────────────────────────────────────────────────
+
+.color-roulette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 5, 15, 0.92);
+  backdrop-filter: blur(6px);
+
+  &--idle,
+  &--spinning,
+  &--revealing {
+    animation: overlayFadeIn 0.5s ease-out both;
+  }
+
+  &--exiting {
+    animation: overlayFadeOut 0.6s ease-in both;
+  }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+
+.color-roulette-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+// ── Título ────────────────────────────────────────────────────────────────────
+
+.color-roulette__title {
+  font-family: serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  color: #fff;
+  text-align: center;
+}
+
+// ── Área de la rueda ──────────────────────────────────────────────────────────
+
+.color-roulette__wheel-area {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+// ── Puntero ───────────────────────────────────────────────────────────────────
+
+.color-roulette__pointer {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+
+  width: 0;
+  height: 0;
+  border-left:  14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top:   24px solid #fff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
+
+// ── Rueda ─────────────────────────────────────────────────────────────────────
+
+.color-roulette__wheel {
+  width:  300px;
+  height: 300px;
+  border-radius: 50%;
+
+  // Sectors: amarillo arriba, rojo derecha, verde abajo, azul izquierda
+  // `from -45deg` centra cada sector en 0°/90°/180°/270° respectivamente
+  background: conic-gradient(
+    from -45deg,
+    #ffd700 0deg   90deg,   // Amarillo (top,   centered at 0°)
+    #ff3333 90deg  180deg,  // Rojo     (right, centered at 90°)
+    #22cc44 180deg 270deg,  // Verde    (bottom,centered at 180°)
+    #3399ff 270deg 360deg   // Azul     (left,  centered at 270°)
+  );
+
+  border: 6px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 0; left: 0;
+
+  // Franja blanca entre sectores (pseudo-elemento en cruz)
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      linear-gradient(0deg,   rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 3px, transparent 3px),
+      linear-gradient(90deg,  rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 3px, transparent 3px);
+    background-size: 100% 100%;
+    background-position: center;
+  }
+
+  // Durante el giro: transición larga con deceleration marcada
+  &--spinning {
+    transition: transform 3.5s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: rimLight 0.8s ease-in-out infinite;
+  }
+
+  // Al revelar: glow del borde en el color ganador (se aplica mediante JS inline style en el glow-ring)
+  &--revealed {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+  }
+}
+
+// ── Etiquetas de sector (emojis dentro de la rueda) ──────────────────────────
+
+.color-roulette__sector-label {
+  position: absolute;
+  font-size: 2rem;
+  line-height: 1;
+  pointer-events: none;
+  // Las etiquetas están fijas respecto al contenedor, no a la rueda
+  // → usan transform para ubicarse en el centro de cada sector
+}
+
+// Posiciones absolutas (relativas a .wheel-area, coinciden con los centros de cada sector sin offset de rotación)
+.color-roulette__sector-label--amarillo {
+  top:  20px;        // sector arriba
+  left: 50%;
+  transform: translateX(-50%);
+}
+.color-roulette__sector-label--rojo {
+  top:  50%;
+  right: 20px;       // sector derecha
+  transform: translateY(-50%);
+}
+.color-roulette__sector-label--verde {
+  bottom: 20px;      // sector abajo
+  left: 50%;
+  transform: translateX(-50%);
+}
+.color-roulette__sector-label--azul {
+  top:  50%;
+  left: 20px;        // sector izquierda
+  transform: translateY(-50%);
+}
+
+// ── Glow ring ─────────────────────────────────────────────────────────────────
+
+.color-roulette__glow-ring {
+  position: absolute;
+  top:  50%;
+  left: 50%;
+  width:  320px;
+  height: 320px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: glowPulse 0.8s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+// ── Hub central ───────────────────────────────────────────────────────────────
+
+.color-roulette__hub {
+  position: absolute;
+  top:  50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+
+  width:  62px;
+  height: 62px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(circle, #1a1a2e 60%, #0a0a1a 100%);
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  font-size: 1.8rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 0, 0, 0.5);
+
+  animation: hubPulse 0.9s ease-in-out infinite alternate;
+}
+
+// ── Reveal del modo ───────────────────────────────────────────────────────────
+
+.color-roulette__reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 100px;
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.color-roulette__mode-name {
+  font-family: serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: modeReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  margin: 0;
+}
+
+.color-roulette__mode-desc {
+  font-size: 1rem;
+  opacity: 0.7;
+  letter-spacing: 0.06em;
+  color: #fff;
+  font-family: serif;
+  animation: modeReveal 0.6s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  margin: 0;
+}
+
+.color-roulette__countdown {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  color: #fff;
+  margin-top: 0.4rem;
+  animation: modeReveal 0.5s 0.3s ease-out both;
+
+  span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+}
+
+// ── Hint de giro ──────────────────────────────────────────────────────────────
+
+.color-roulette__spinning-hint {
+  font-size: 0.85rem;
+  opacity: 0.4;
+  color: #fff;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: serif;
+  min-height: 1.5rem;
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 0.8; }
+  }
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+// ── Efectos: Partículas ───────────────────────────────────────────────────────
+
+@keyframes cr-particleShoot {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--p-angle)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  60% { opacity: 0.7; }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--p-angle)) translateX(var(--p-dist)) scale(0.08);
+    opacity: 0;
+  }
+}
+
+.cr-particle-burst {
+  position: absolute;
+  top:  50%;
+  left: 50%;
+  width:  0;
+  height: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.cr-particle {
+  position: absolute;
+  top:  0;
+  left: 0;
+  border-radius: 50%;
+  animation: cr-particleShoot var(--p-dur, 900ms) var(--p-delay, 0ms) ease-out forwards;
+}
+
+// ── Efectos: Rayos de energía ─────────────────────────────────────────────────
+
+@keyframes cr-rayFlash {
+  0%   { opacity: 0;   transform: rotate(var(--r-angle)) translateX(150px) scaleX(0.1); }
+  30%  { opacity: 1;   transform: rotate(var(--r-angle)) translateX(150px) scaleX(1);   }
+  70%  { opacity: 0.8; transform: rotate(var(--r-angle)) translateX(150px) scaleX(1);   }
+  100% { opacity: 0;   transform: rotate(var(--r-angle)) translateX(150px) scaleX(0.4); }
+}
+
+.cr-lightning-container {
+  position: absolute;
+  top:  50%;
+  left: 50%;
+  width:  0;
+  height: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.cr-lightning-ray {
+  position: absolute;
+  top:    -2px;
+  left:    0;
+  height:  3px;
+  border-radius: 2px;
+  width: var(--r-length, 80px);
+  transform-origin: left center;
+  animation: cr-rayFlash var(--r-dur, 300ms) var(--r-delay, 0ms) ease-in-out infinite;
+}
+
+// ── Efectos: Shockwave expansivo ──────────────────────────────────────────────
+
+@keyframes cr-shockwaveExpand {
+  0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0;   }
+}
+
+.cr-shockwave {
+  position: absolute;
+  top:    50%;
+  left:   50%;
+  width:  300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  pointer-events: none;
+  z-index: 12;
+  animation: cr-shockwaveExpand 0.85s ease-out forwards;
+
+  &--delayed {
+    opacity: 0;
+    animation-delay: 0.35s;
+  }
+}

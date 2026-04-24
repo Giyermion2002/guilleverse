@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { playSFX } from '../../utils/sfx';
 import { Lobby } from '../Lobby/Lobby';
 import { LobbyRoom } from '../Lobby/LobbyRoom/LobbyRoom';
 import { GameTable } from '../GameTable/GameTable';
 import { AudioControl } from '../AudioControl/AudioControl';
+import { ColorRoulette, type GameColor } from '../ColorRoulette/ColorRoulette';
 import './App.scss';
 
 // Inicialización del socket fuera del componente para evitar reconexiones múltiples en cada render
@@ -29,6 +30,8 @@ interface ChatMessage {
   avatar: string;
   text: string;
   timestamp: string;
+  /** Si es true, es un mensaje del sistema (unión/salida/reconexión). */
+  isSystem?: boolean;
 }
 
 /**
@@ -52,6 +55,8 @@ function App() {
   const [roomCode, setRoomCode] = useState('');
   const [isHost, setIsHost] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  /** Color de minijuego recibido del servidor — activa la ruleta antes de entrar a la mesa. */
+  const [gameColor, setGameColor] = useState<GameColor | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -83,9 +88,14 @@ function App() {
       setMessages(prev => [...prev, msg]);
     });
 
-    // Escuchador: El Host ha iniciado la partida
-    socket.on('game-started', () => {
-      setGameStarted(true);
+    // Escuchador: El Host ha iniciado la partida — activa la ruleta con el color recibido
+    socket.on('game-started', ({ color, isNew }: { color: GameColor; isNew: boolean }) => {
+      playSFX('join');
+      setGameColor(color);
+      if (!isNew) {
+        // Partida ya en curso (jugador se unió tarde): saltar ruleta e ir directo al juego
+        setGameStarted(true);
+      }
     });
 
     // Escuchador: El usuario actual ha sido promovido a Host (si el anterior se fue)
@@ -141,11 +151,12 @@ function App() {
     playSFX('click');
     socket.emit('leave-room', roomCode);
 
-    // Resetear estados locales
+    // Resetear estados locales (incluyendo el color de la ruleta)
     setJoined(false);
     setRoomCode('');
     setIsHost(false);
     setGameStarted(false);
+    setGameColor(null);
     setPlayers([]);
     setActions([]);
     setMessages([]);
@@ -166,6 +177,14 @@ function App() {
   const handleStartGame = () => {
     socket.emit('start-game', roomCode);
   };
+
+  /**
+   * Callback llamado cuando la animación de la ruleta termina.
+   * Activa la pantalla de juego con el color ya revelado.
+   */
+  const handleRouletteComplete = useCallback(() => {
+    setGameStarted(true);
+  }, []);
 
   /**
    * Envía la acción de jugar una carta al servidor.
@@ -189,7 +208,7 @@ function App() {
       )}
 
       {/* Estado 2: Conectado pero la partida no ha empezado → sala de espera */}
-      {joined && !gameStarted && (
+      {joined && !gameColor && !gameStarted && (
         <LobbyRoom
           roomCode={roomCode}
           isHost={isHost}
@@ -199,12 +218,27 @@ function App() {
         />
       )}
 
+      {/* Estado 2b: Ruleta animada — visible en TODOS los clientes simultáneamente */}
+      {joined && gameColor && !gameStarted && (
+        <>
+          <LobbyRoom
+            roomCode={roomCode}
+            isHost={isHost}
+            players={players}
+            onStartGame={handleStartGame}
+            onLeaveRoom={handleLeaveRoom}
+          />
+          <ColorRoulette color={gameColor} onComplete={handleRouletteComplete} />
+        </>
+      )}
+
       {/* Estado 3: Partida en curso → mesa de juego completa */}
       {joined && gameStarted && (
         <GameTable
           roomCode={roomCode}
           isHost={isHost}
           gameStarted={gameStarted}
+          gameColor={gameColor}
           players={players}
           actions={actions}
           messages={messages}

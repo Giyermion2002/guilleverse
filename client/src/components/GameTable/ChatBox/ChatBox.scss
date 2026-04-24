@@ -42,6 +42,24 @@
       .text {
         word-break: break-word;
       }
+
+      // Mensajes del sistema: uni\u00f3n / salida / reconexi\u00f3n
+      &--system {
+        text-align: center;
+        margin: 0.5rem 0;
+
+        .system-text {
+          display: inline-block;
+          font-size: 0.78rem;
+          font-style: italic;
+          color: #8a8a9a;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 1rem;
+          padding: 0.2rem 0.7rem;
+          word-break: break-word;
+        }
+      }
     }
   }
 

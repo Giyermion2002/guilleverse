@@ -11,6 +11,8 @@ interface ChatMessage {
   avatar: string;
   text: string;
   timestamp: string;
+  /** Mensaje del sistema (unión, salida, reconexión). Se muestra sin nombre y en gris. */
+  isSystem?: boolean;
 }
 
 /**
@@ -51,10 +53,17 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage }) => 
       <div className="messages-list">
         {messages.length === 0 && <p className="empty-chat">No hay mensajes aún...</p>}
         {messages.map((m) => (
-          <div key={m.id} className="chat-msg">
-            <span className="sender">{m.sender}: </span>
-            <span className="text">{m.text}</span>
-          </div>
+          m.isSystem
+            ? (
+              <div key={m.id} className="chat-msg chat-msg--system">
+                <span className="system-text">{m.text}</span>
+              </div>
+            ) : (
+              <div key={m.id} className="chat-msg">
+                <span className="sender">{m.sender}: </span>
+                <span className="text">{m.text}</span>
+              </div>
+            )
         ))}
       </div>
       <form onSubmit={handleChatSubmit} className="chat-form">
